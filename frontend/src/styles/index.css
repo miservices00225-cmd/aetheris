@@ -1,0 +1,20 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+:root {
+  --color-gold: #C9A050;
+  --color-night: #0A1321;
+  --color-navy: #193452;
+  --color-steel: #2F6792;
+  --color-emerald: #0E765E;
+  --color-crimson: #AF2D2D;
+  --color-white: #FFFFFF;
+  --color-slate: #B8C1CC;
+}
+
+body {
+  background-color: var(--color-night);
+  color: var(--color-white);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}

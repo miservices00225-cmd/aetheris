@@ -1,0 +1,135 @@
+# ════════════════════════════════════════════════════════════════════════════════
+# AETHERIS — .gitignore
+# ════════════════════════════════════════════════════════════════════════════════
+
+# ════════════════════════════════════════════════════════════════════════════════
+# ENVIRONMENT & SECRETS (CRITICAL — NEVER COMMIT)
+# ════════════════════════════════════════════════════════════════════════════════
+.env
+.env.local
+.env.*.local
+.env.*.private
+*.env
+!.env.example
+
+# Copilot-specific (EXCLUDE SECRETS, INCLUDE CONFIG)
+.copilot/.env.local
+.copilot/.env.local.bak
+.copilot/*.key
+.copilot/secrets/
+# But DO commit settings and skills:
+# .copilot/settings.local.json
+# .copilot/mcp-config.json
+# .copilot/skills/
+
+# ════════════════════════════════════════════════════════════════════════════════
+# DEPENDENCIES
+# ════════════════════════════════════════════════════════════════════════════════
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+
+# ════════════════════════════════════════════════════════════════════════════════
+# BUILD & COMPILATION
+# ════════════════════════════════════════════════════════════════════════════════
+.next/
+out/
+.nuxt/
+dist/
+build/
+*.tsbuildinfo
+.cache/
+.turbo/
+
+# ════════════════════════════════════════════════════════════════════════════════
+# IDE & EDITOR
+# ════════════════════════════════════════════════════════════════════════════════
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+*~
+.DS_Store
+Thumbs.db
+*.sublime-project
+*.sublime-workspace
+.vim/
+
+# ════════════════════════════════════════════════════════════════════════════════
+# TESTING & COVERAGE
+# ════════════════════════════════════════════════════════════════════════════════
+coverage/
+.nyc_output/
+*.lcov
+.jest_cache/
+.pytest_cache/
+
+# ════════════════════════════════════════════════════════════════════════════════
+# LOGS
+# ════════════════════════════════════════════════════════════════════════════════
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# ════════════════════════════════════════════════════════════════════════════════
+# AUDIO FILES & SENSITIVE DATA
+# ════════════════════════════════════════════════════════════════════════════════
+*.mp3
+*.wav
+*.m4a
+*.aac
+audio/
+vocal-notes/
+uploads/
+temp/
+tmp/
+
+# ════════════════════════════════════════════════════════════════════════════════
+# OS-SPECIFIC
+# ════════════════════════════════════════════════════════════════════════════════
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ════════════════════════════════════════════════════════════════════════════════
+# LOCAL DEVELOPMENT
+# ════════════════════════════════════════════════════════════════════════════════
+.local/
+*.local
+.venv/
+.envrc
+direnv.allow
+.direnv
+
+# ════════════════════════════════════════════════════════════════════════════════
+# DOCKER
+# ════════════════════════════════════════════════════════════════════════════════
+docker-compose.override.yml
+.dockerignore
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/

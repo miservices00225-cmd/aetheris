@@ -1,0 +1,29 @@
+{
+  "mcpServers": {
+    "context7": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {
+        "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}"
+      },
+      "tools": [
+        "get-library-docs",
+        "resolve-library-id"
+      ]
+    },
+    "upstash-context7": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"],
+      "env": {
+        "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}"
+      }
+    },
+    "playwright": {
+      "type": "local",
+      "command": "npx",
+      "tools": ["*"],
+      "args": ["@playwright/mcp@latest"]
+    }
+  }
+}

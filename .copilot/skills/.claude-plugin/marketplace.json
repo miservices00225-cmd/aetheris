@@ -1,0 +1,53 @@
+{
+  "name": "anthropic-agent-skills",
+  "owner": {
+    "name": "Keith Lazuka",
+    "email": "klazuka@anthropic.com"
+  },
+  "metadata": {
+    "description": "Comprehensive skills suite including document processing, design, development, and testing capabilities",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "document-skills",
+      "description": "Collection of document processing suite including Excel, Word, PowerPoint, and PDF capabilities",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/xlsx",
+        "./skills/docx",
+        "./skills/pptx",
+        "./skills/pdf"
+      ]
+    },
+    {
+      "name": "design-and-development-skills",
+      "description": "Collection of design and development skills including visual design, frontend design, canvas design, algorithmic art, theme factory, and MCP builder",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/algorithmic-art",
+        "./skills/brand-guidelines",
+        "./skills/canvas-design",
+        "./skills/frontend-design",
+        "./skills/theme-factory",
+        "./skills/mcp-builder",
+        "./skills/web-artifacts-builder"
+      ]
+    },
+    {
+      "name": "collaboration-and-automation-skills",
+      "description": "Collection of collaboration and automation skills including document coauthoring, internal communications, skill creation, testing, and Slack integration",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/doc-coauthoring",
+        "./skills/internal-comms",
+        "./skills/skill-creator",
+        "./skills/slack-gif-creator",
+        "./skills/webapp-testing"
+      ]
+    }
+  ]
+}
