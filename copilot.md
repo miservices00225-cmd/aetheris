@@ -356,3 +356,189 @@ Si les détails d'implémentation conflictent avec ce document, le PRD a priorit
 - **Section 5 (UI/UX Design System)** pour specs composants
 - **Section 6 (Logique d'Implémentation Détaillée)** pour séquences workflows
 - **aetheris-icons-preview.html** pour référence système d'icônes et tous 41 symbols
+
+---
+
+## Aperçu du Projet
+
+**AETHERIS** est une plateforme Trading Copilot OS pour traders actifs et candidats prop firm. L'objectif est de fournir un système de prévention active des pertes (Aether Armor) combiné à une intelligence institutionnelle, plutôt qu'un simple journal de trading passif.
+
+**Phase 1 (MVP):** Infrastructure de sync broker (900+ courtiers), 200+ KPIs, calendrier heatmap, agrégation multi-compte, Armor alerts.
+
+---
+
+## Aperçu de l'Architecture Globale
+
+```
+Frontend (React 18 + Vite 5.4)
+  ├── Dashboard (KPI cards, heatmap, historique)
+  ├── Trade Log (journalisation et édition)
+  ├── Analytics (métriques avancées)
+  └── Aether Armor (alertes et protections)
+  
+Backend (Node.js 22 + Express 4.21)
+  ├── /api/v1/brokers/sync → Connecteurs (MT4, IB, FIX)
+  ├── /api/v1/metrics → Moteur KPI
+  ├── /api/v1/risk → Agrégation multi-compte
+  └── /api/v1/armor → Alertes et webhooks
+  
+Database (Supabase PostgreSQL 14)
+  ├── 15 tables (users, accounts, trades, daily_snapshots, etc.)
+  ├── RLS policies (row-level security)
+  ├── Real-time subscriptions (WebSocket < 2s)
+  └── Auth native (JWT + 2FA TOTP)
+```
+
+---
+
+## Style Visuel
+
+### MVP (Phase 1)
+- ✅ **Interface claire et minimaliste**
+- ✅ **Mode clair uniquement** (pas de dark mode pour le MVP)
+- ✅ **Palette AETHERIS:** Gold (#C9A050), Night (#0A1321), Navy (#193452), Steel (#2F6792), Emerald (#0E765E), Crimson (#AF2D2D)
+- ✅ **Composants:** Héroicons (41 icônes MIT), Tailwind CSS utilitaires, zéro dépendances UI externes
+- ✅ **Responsive:** Mobile-first, testé sur 320px-2560px
+
+---
+
+## Contraintes et Politiques
+
+### Sécurité (CRITIQUE)
+- 🔒 **NE JAMAIS exposer les clés API au client** (Supabase ANON_KEY utilisée uniquement pour RLS)
+- 🔒 Service keys stockées côté backend uniquement
+- 🔒 Credentials broker chiffrées en base (AES-256)
+- 🔒 Audit trail pour tout accès credential
+- 🔒 .env.local ignoré via .gitignore
+
+### Code
+- 📌 **TypeScript strict mode** sur backend + frontend
+- 📌 **ESLint + Prettier** automatiques
+- 📌 **Jest tests** obligatoires pour broker sync + métriques
+- 📌 **Zod validation** sur toutes entrées API
+
+### Dépendances
+- 📦 **Préférer les composants existants** plutôt que d'ajouter de nouvelles librairies UI
+- 📦 Minimiser les dépendances (Zustand 2KB vs Redux)
+- 📦 Réutiliser Tailwind + Héroicons pour UI
+- 📦 Demander avant d'ajouter nouvelle dépendance
+
+---
+
+## Frontend: Tests et Acceptance Criteria
+
+À la fin de **chaque développement impliquant l'interface graphique:**
+
+1. **Responsivité**
+   - ✅ Testé sur mobile (320px), tablet (768px), desktop (1920px)
+   - ✅ Pas de scrollbar horizontal
+   - ✅ Touch-friendly (min 44x44px buttons)
+
+2. **Fonctionnalité**
+   - ✅ Playwright tests pour user journeys critiques
+   - ✅ Zéro console errors/warnings
+   - ✅ Performance: Largest Contentful Paint < 2.5s
+
+3. **Répondre au besoin**
+   - ✅ Acceptance criteria du sprint satisfaits
+   - ✅ Pas de régression vs features existantes
+   - ✅ Design system respecté (couleurs, spacing, typography)
+
+**Commande test:**
+```bash
+cd frontend && npm run test
+# ou
+playwright-skill: test la UI critique
+```
+
+---
+
+## Documentation
+
+### Références Obligatoires
+- 📄 **@PRD.md** — PRD technique complet (600+ lignes)
+- 📄 **@ARCHITECTURE.md** — Stack tech, DB schema, API patterns
+- 📄 **@PROJECT_PLAN.md** — Sprint breakdown (0-7), WHAT vs HOW
+- 📄 **aetheris-icons-preview.html** — Système icônes (41 Héroicons, 4 catégories)
+
+### Pour chaque feature:
+- Ajouter docstring API (@params, @returns, @throws)
+- Commenter logique complexe (formules métriques, retry logic)
+- README.md par module (backend/, frontend/)
+
+---
+
+## Context7 - Documentation Automatique
+
+**Directive critique:** Utilise TOUJOURS Context7 lorsque tu as besoin de:
+- 🔍 Génération de code (implementation patterns)
+- 🔍 Étapes de configuration/installation
+- 🔍 Documentation bibliothèque/API
+
+**Processus automatique:**
+1. User demande: "Ajoute validation Zod au endpoint"
+2. Copilot exécute: `context7-resolve-library-id(query="zod validation", libraryName="zod")`
+3. Copilot exécute: `context7-query-docs(libraryId="/zod", query="runtime type validation examples")`
+4. Copilot génère code avec exemples officiels
+
+**Ne pas demander explicitement.** Je le fais auto.
+
+---
+
+## Spécifications OpenSpec
+
+**Langue:** Toutes les spécifications doivent être rédigées en **FRANÇAIS**, y compris:
+- Purpose (Objectif)
+- Scenarios (Cas d'usage)
+- Acceptance criteria (Critères d'acceptation)
+
+**Format:** Seuls les titres Requirements restent en anglais avec mots-clés OpenSpec:
+- `SHALL` (obligation stricte)
+- `MUST` (obligation fonctionnelle)
+- `SHOULD` (recommandé)
+- `MAY` (optionnel)
+
+**Exemple:**
+```
+# Métrique Expectancy — Spécification
+
+**Purpose (Objectif):**
+Calculer l'espérance mathématique par trade pour identifier la profitabilité moyenne attendue.
+
+**Scenarios (Cas d'usage):**
+1. Utilisateur voir l'Expectancy sur dashboard KPI
+2. Système agrège les derniers 100 trades
+3. Système compare vs benchmark sectoriel
+
+## Requirements
+
+- The system SHALL calculate Expectancy = (Win% × Avg Win) − (Loss% × Avg Loss)
+- The system MUST cache result in daily_snapshots table
+- The system SHOULD display benchmark comparison (top 10% traders)
+```
+
+---
+
+## Workflow Copilot
+
+Quand tu développes une feature:
+
+1. **Planification** (`[[PLAN]]`)
+   - Demande clarifications si besoin
+   - Propose plan avec WHAT vs HOW
+   - User approuve via `exit_plan_mode`
+
+2. **Implémentation**
+   - Utilise Context7 auto pour libs
+   - Tests + linting intégrés
+   - Commits avec trailer Copilot
+
+3. **Validation**
+   - Frontend: Playwright tests
+   - Backend: Jest + Supertest
+   - Documentation mise à jour
+
+4. **Git**
+   - "Pousse ce changement sur GitHub"
+   - Copilot gère commit + push
+   - GitHub Actions CI/CD valide

@@ -1,0 +1,324 @@
+openspec: "1.1.1"
+metadata:
+  title: "AETHERIS Trading Copilot OS"
+  version: "0.1.0"
+  description: "Plateforme de trading avec prévention active des pertes, sync 900+ courtiers, 200+ KPIs, et intelligence institutionnelle"
+  author: "AETHERIS Development Team"
+  license: "Proprietary"
+  created: "2026-02-20"
+  status: "draft"
+
+purpose: |
+  AETHERIS est un système de Trading Copilot OS pour traders actifs et candidats prop firm.
+  Objectif: Prévenir les pertes en temps réel (Aether Armor) plutôt que d'enregistrer les trades après coup.
+  Phase 1 MVP couvre: sync broker auto, 200+ KPIs, calendrier heatmap, agrégation multi-compte, alertes Armor.
+
+sections:
+  - name: "Phase 1 MVP"
+    description: "Infrastructure & Compliance"
+    key_features:
+      - "900+ broker sync (MT4, IB, FIX, REST)"
+      - "200+ institutional metrics (Expectancy, Profit Factor, Kelly, MFE/MAE)"
+      - "Visual Calendar Heatmap (7×5 grid, P/L daily)"
+      - "Multi-account risk aggregation"
+      - "Aether Armor soft breach alerts (Level 1-3)"
+      - "JWT + 2FA TOTP authentication"
+      - "Real-time subscriptions (Supabase WebSocket < 2s)"
+
+  - name: "Phase 2 Maturity"
+    description: "Psychology & Active Discipline"
+    key_features:
+      - "Aether Flow (emotion tracking + financial cost quantification)"
+      - "Vocal Stress Score (AI prosodic analysis)"
+      - "Tilt detection and discipline scoring"
+      - "Psychology intervention alerts"
+
+  - name: "Phase 3 Apex"
+    description: "Institutional Intelligence & 3D"
+    key_features:
+      - "Oracle Consensus (Whale flows, COT, on-chain data)"
+      - "Vocal Analysis (micro-tremor detection)"
+      - "Galaxie 3D (hour × instrument × duration × P/L multidimensional clustering)"
+      - "Shadow Index and institutional correlation alerts"
+
+tech_stack:
+  backend:
+    runtime: "Node.js 22 LTS"
+    framework: "Express 4.21"
+    language: "TypeScript 5.7"
+    orm: "@supabase/supabase-js 2.50 (no Prisma Phase 1)"
+
+  frontend:
+    framework: "React 18.3"
+    build_tool: "Vite 5.4"
+    language: "TypeScript 5.7"
+    styling: "Tailwind CSS 3.4"
+    state: "Zustand 4.5"
+    icons: "Heroicons 2.1 (41-icon sprite)"
+
+  database:
+    platform: "Supabase (managed PostgreSQL 14.13)"
+    auth: "Supabase Auth (JWT + 2FA TOTP native)"
+    realtime: "Supabase Realtime (WebSocket subscriptions)"
+    storage: "Supabase Storage (S3-compatible)"
+
+  testing:
+    backend: "Jest 29.7 + Supertest 6.3.4"
+    frontend: "React Testing Library 14.2 + Jest 29.7"
+    e2e: "Playwright (optional Phase 1)"
+
+  ci_cd: "GitHub Actions"
+
+design_system:
+  colors:
+    gold: "#C9A050"        # Prestige, titles, elite scores
+    night: "#0A1321"       # Dark mode background
+    navy: "#193452"        # Structural blocks, cards
+    steel: "#2F6792"       # Epics, technical sections
+    emerald: "#0E765E"     # Profits, wins, validated discipline
+    crimson: "#AF2D2D"     # Losses, critical alerts
+    white: "#FFFFFF"       # High-contrast text
+    slate: "#B8C1CC"       # Subtitles, labels, metadata
+
+  typography:
+    font_family: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif"
+    mode: "light"          # MVP: light mode only, no dark mode
+
+  responsive:
+    mobile: "320px minimum"
+    tablet: "768px"
+    desktop: "1920px"
+
+icon_system:
+  library: "Heroicons v2.2.0 (MIT License)"
+  total_icons: 41
+  format: "SVG sprite"
+  sprite_file: "aetheris-icons-preview.html"
+  implementation: "Use <svg><use href='#icon-id'></use></svg> pattern"
+  
+  categories:
+    - name: "Sidebar Navigation (9 icons)"
+      accent_color: "#C9A050 (Gold)"
+      icons:
+        - id: "sidebar-dashboard"
+          heroicon: "home"
+          module: "M1 Dashboard"
+        - id: "sidebar-journal"
+          heroicon: "book-open"
+          module: "M2 Workspace Journal"
+        - id: "sidebar-analytics"
+          heroicon: "chart-bar"
+          module: "M3 Analytics & Performance"
+        - id: "sidebar-aether-flow"
+          heroicon: "microphone"
+          module: "M4 Aether Flow Psychologie"
+        - id: "sidebar-aether-armor"
+          heroicon: "shield-check"
+          module: "M5 Aether Armor Protection"
+        - id: "sidebar-oracle"
+          heroicon: "sparkles"
+          module: "M6 Oracle Consensus"
+        - id: "sidebar-galaxie-3d"
+          heroicon: "cube-transparent"
+          module: "M7 Galaxie 3D"
+        - id: "sidebar-tax-engine"
+          heroicon: "document-currency-euro"
+          module: "M8 Tax Engine"
+        - id: "sidebar-settings"
+          heroicon: "cog-6-tooth"
+          module: "M9 Settings & Integrations"
+
+    - name: "KPI Dashboard Cards (10 icons)"
+      accent_color: "#0E765E (Emerald)"
+      icons:
+        - id: "kpi-winrate"
+          heroicon: "arrow-trending-up"
+          metric: "Win Rate %"
+        - id: "kpi-profit-factor"
+          heroicon: "bolt"
+          metric: "Profit Factor"
+        - id: "kpi-expectancy"
+          heroicon: "scale"
+          metric: "Expectancy per Trade"
+        - id: "kpi-drawdown"
+          heroicon: "arrow-trending-down"
+          metric: "Max Drawdown"
+        - id: "kpi-sharpe"
+          heroicon: "chart-pie"
+          metric: "Sharpe/Sortino Ratio"
+        - id: "kpi-trades"
+          heroicon: "rectangle-stack"
+          metric: "Total Trades Count"
+        - id: "kpi-r-multiple"
+          heroicon: "star"
+          metric: "R-Multiple"
+        - id: "kpi-duration"
+          heroicon: "clock"
+          metric: "Avg Trade Duration"
+        - id: "kpi-pnl"
+          heroicon: "banknotes"
+          metric: "P/L Net Total"
+        - id: "kpi-mfe-mae"
+          heroicon: "arrows-up-down"
+          metric: "MFE / MAE Ratio"
+
+    - name: "Action Buttons (10 icons)"
+      accent_color: "#2F6792 (Steel)"
+      icons:
+        - id: "action-add-trade"
+          heroicon: "plus-circle"
+          action: "Add Trade Manual Entry"
+        - id: "action-import"
+          heroicon: "arrow-down-tray"
+          action: "Import CSV File"
+        - id: "action-export"
+          heroicon: "arrow-up-tray"
+          action: "Export PDF/CSV/Excel"
+        - id: "action-sync"
+          heroicon: "arrows-right-left"
+          action: "Sync Broker Connection"
+        - id: "action-filter"
+          heroicon: "adjustments-horizontal"
+          action: "Filters & Segmentation"
+        - id: "action-search"
+          heroicon: "magnifying-glass-plus"
+          action: "Full-Text Search"
+        - id: "action-share"
+          heroicon: "arrow-top-right-on-square"
+          action: "Share Report Link"
+        - id: "action-record"
+          heroicon: "microphone"
+          action: "Start Vocal Recording"
+        - id: "action-delete"
+          heroicon: "trash"
+          action: "Delete Trade"
+        - id: "action-edit"
+          heroicon: "pencil-square"
+          action: "Edit Trade Details"
+
+    - name: "Armor & Alert Badges (12 icons)"
+      accent_color: "#AF2D2D (Crimson)"
+      icons:
+        - id: "armor-shield-ok"
+          heroicon: "shield-check (green)"
+          alert_type: "Armor Nominal ✓"
+        - id: "armor-shield-alert"
+          heroicon: "shield-exclamation"
+          alert_type: "Armor Alert Level"
+        - id: "armor-bell"
+          heroicon: "bell-alert"
+          alert_type: "Active Alert Notification"
+        - id: "armor-bell-snooze"
+          heroicon: "bell-snooze"
+          alert_type: "Alert Snoozed"
+        - id: "armor-fire"
+          heroicon: "fire"
+          alert_type: "Tilt Session Active"
+        - id: "armor-lock"
+          heroicon: "lock-closed"
+          alert_type: "Session Locked"
+        - id: "armor-webhook"
+          heroicon: "signal"
+          alert_type: "Webhook Active"
+        - id: "armor-cooling"
+          heroicon: "moon"
+          alert_type: "Cooling Period"
+        - id: "armor-revenge"
+          heroicon: "bolt"
+          alert_type: "Revenge Trading Detected"
+        - id: "armor-whale"
+          heroicon: "globe-alt"
+          alert_type: "Whale Impact Correlated"
+        - id: "armor-check"
+          heroicon: "check-circle"
+          alert_type: "Validation / Success"
+        - id: "armor-warning"
+          heroicon: "exclamation-triangle"
+          alert_type: "General Warning"
+
+  implementation_rules:
+    - "Load SVG sprite once at app mount (cache in memory)"
+    - "Use <use href='#icon-id'> pattern for all icon references"
+    - "Always wrap in <svg> wrapper to control size (default 24x24px)"
+    - "Apply color dynamically via style='color: var(--color-gold)' on wrapper, NOT use element"
+    - "Test icon rendering at 16px, 24px, 32px sizes (common UI scales)"
+    - "Sidebar icons use currentColor with gold accent on hover"
+    - "KPI card icons use currentColor with emerald accent"
+    - "Action button icons use currentColor with steel accent"
+    - "Armor alert icons use currentColor with crimson accent"
+    - "Never override Heroicons SVG fill/stroke directly, use CSS color property"
+
+database_schema:
+  tables:
+    - name: "users"
+      purpose: "Account holders with KYC/AML status"
+      
+    - name: "accounts"
+      purpose: "Trading accounts (personal, prop firm, crypto) with risk limits"
+      
+    - name: "broker_connections"
+      purpose: "API credentials + sync status per broker (encrypted at rest)"
+      
+    - name: "trades"
+      purpose: "Individual trade records with entry/exit, fees, slippage"
+      
+    - name: "sync_logs"
+      purpose: "Import audit trail (new, duplicates, errors per broker)"
+      
+    - name: "daily_snapshots"
+      purpose: "Aggregated P/L + metrics per day (feeds heatmap, pre-computed)"
+      
+    - name: "emotion_logs"
+      purpose: "Bias tags (FOMO, REVENGE, OVERCONFIDENCE) + financial cost attributed"
+      
+    - name: "vocal_notes"
+      purpose: "Audio recordings + Vocal Stress Score timeline + AI transcription (Phase 2)"
+      
+    - name: "armor_breaches"
+      purpose: "Soft/hard breach events with timestamps (prevents claim disputes)"
+      
+    - name: "kpi_snapshots"
+      purpose: "Pre-computed KPI historical snapshots (daily)"
+      
+    - name: "prop_firm_templates"
+      purpose: "Rule constraints for FTMO, MyForexFunds, etc."
+      
+    - name: "webhook_events"
+      purpose: "Outbound webhook logs for Armor Level 3 critical alerts"
+      
+    - name: "whale_events"
+      purpose: "Institutional activity correlations (Phase 3)"
+      
+    - name: "oracle_scores"
+      purpose: "Oracle Consensus confidence scores (Phase 3)"
+      
+    - name: "sessions"
+      purpose: "User sessions + refresh tokens (JWT-based)"
+
+security_constraints:
+  - "NE JAMAIS exposer les clés API au client (Supabase ANON_KEY RLS only)"
+  - "Service keys stockées côté backend uniquement"
+  - "Credentials broker chiffrées en base (AES-256)"
+  - "Audit trail obligatoire pour tout accès credential"
+  - ".env.local ignoré via .gitignore"
+  - "KYC/AML audit trail pour tous les changements credential"
+
+coding_standards:
+  - "TypeScript strict mode obligatoire (backend + frontend)"
+  - "ESLint + Prettier auto-formatage"
+  - "Jest tests obligatoires (broker sync + métriques)"
+  - "Zod validation sur toutes entrées API"
+  - "Pas de console.log en production (pino structured logging)"
+  - "Responsivité testée sur 320px-2560px"
+
+documentation_references:
+  - "@PRD.md (PRD technique complet, 600+ lignes)"
+  - "@ARCHITECTURE.md (Stack tech, DB schema, API patterns)"
+  - "@PROJECT_PLAN.md (Sprint breakdown 0-7, WHAT vs HOW)"
+  - "aetheris-icons-preview.html (Système icônes, 41 Héroicons)"
+  - "@copilot.md (Workflow Copilot, Context7, OpenSpec)"
+
+timeline_estimation:
+  phase_0: "16 heures (~2-3 jours full-time)"
+  phase_1_sprint_0_7: "~150 heures (~2-3 mois full-time ou 4-6 mois part-time)"
+  total_mvp: "2.5-3 mois à plein temps"
