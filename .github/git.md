@@ -36,7 +36,8 @@ git init
   ├──────────────────────────────┼─────────────────────────────────┤
   │ openspec status [name]       │ Statut artifacts                │
   ├──────────────────────────────┼─────────────────────────────────┤
-  │ openspec archive [name]      │ Finaliser + mettre à jour specs │
+  │ 
+   archive [name]      │ Finaliser + mettre à jour specs │
   └──────────────────────────────┴─────────────────────────────────┘
 
 /opsx:new       Start a new change
