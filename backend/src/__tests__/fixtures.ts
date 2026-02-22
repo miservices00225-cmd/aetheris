@@ -6,7 +6,10 @@
  * Keeps tests fast and readable.
  */
 
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
+
+// Simple ID generator for tests (native crypto.randomUUID - no external dependencies)
+const generateId = (): string => randomUUID();
 
 /**
  * Lightweight cleanup helper for afterEach
@@ -14,7 +17,7 @@ import { v4 as uuidv4 } from 'uuid';
  * Only delete what's actually needed in tests
  */
 export const createTestUser = () => {
-  const userId = uuidv4();
+  const userId = generateId();
   return {
     id: userId,
     email: `test-${userId.substring(0, 8)}@test.local`,
@@ -23,10 +26,10 @@ export const createTestUser = () => {
 };
 
 export const createTestAccount = (userId?: string) => {
-  const accountId = uuidv4();
+  const accountId = generateId();
   return {
     id: accountId,
-    user_id: userId || uuidv4(),
+    user_id: userId || generateId(),
     account_name: `Test-Account-${accountId.substring(0, 8)}`,
     account_type: 'personal' as const,
     leverage: 1,
@@ -39,12 +42,12 @@ export const createTestTrade = (
   accountId?: string,
   overrides?: Record<string, unknown>
 ) => {
-  const tradeId = uuidv4();
+  const tradeId = generateId();
   const brokerTradeId = `BT-${Date.now()}-${Math.random().toString(36).substring(7)}`;
   
   return {
     id: tradeId,
-    account_id: accountId || uuidv4(),
+    account_id: accountId || generateId(),
     broker_trade_id: brokerTradeId,
     entry_price: 100.5,
     exit_price: 102.0,
@@ -58,10 +61,10 @@ export const createTestTrade = (
 };
 
 export const createTestBrokerConnection = (accountId?: string) => {
-  const connectionId = uuidv4();
+  const connectionId = generateId();
   return {
     id: connectionId,
-    account_id: accountId || uuidv4(),
+    account_id: accountId || generateId(),
     broker_type: 'mt4' as const,
     connection_status: 'connected' as const,
     last_sync_at: null,
@@ -77,7 +80,7 @@ export class TestDataFactory {
   private userId: string;
 
   constructor(userId?: string) {
-    this.userId = userId || uuidv4();
+    this.userId = userId || generateId();
   }
 
   user() {
@@ -86,9 +89,9 @@ export class TestDataFactory {
 
   account(overrides?: Record<string, unknown>) {
     return {
-      id: uuidv4(),
+      id: generateId(),
       user_id: this.userId,
-      account_name: `Account-${uuidv4().substring(0, 8)}`,
+      account_name: `Account-${generateId().substring(0, 8)}`,
       account_type: 'personal' as const,
       ...overrides,
     };
@@ -96,7 +99,7 @@ export class TestDataFactory {
 
   trade(accountId: string, overrides?: Record<string, unknown>) {
     return {
-      id: uuidv4(),
+      id: generateId(),
       account_id: accountId,
       broker_trade_id: `BT-${Date.now()}-${Math.random().toString(36).substring(7)}`,
       entry_price: 100.5,
@@ -107,6 +110,10 @@ export class TestDataFactory {
       pnl: 150,
       ...overrides,
     };
+  }
+
+  reset() {
+    this.userId = generateId();
   }
 }
 
@@ -139,4 +146,10 @@ export const INVALID_ACCOUNT_PAYLOAD = {
   account_name: 'Test Account',
   account_type: 'invalid_type', // Invalid enum
   leverage: 1,
+};
+
+export const VALID_BROKER_PAYLOAD = {
+  broker_type: 'mt4' as const,
+  broker_api_key: 'test-api-key',
+  broker_api_secret: 'test-api-secret',
 };

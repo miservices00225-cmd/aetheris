@@ -1,6 +1,5 @@
 import dotenv from 'dotenv';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -18,8 +17,7 @@ import { authMiddleware } from './middleware/auth.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { sendError } from './utils/responses.js';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: path.join(__dirname, '../.env.local') });
+dotenv.config({ path: path.join(process.cwd(), '.env.local') });
 
 export const createApp = (): Application => {
   const app: Application = express();
@@ -38,8 +36,10 @@ export const createApp = (): Application => {
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-  // Serve static files
-  app.use(express.static(path.join(__dirname, '../public')));
+  // Serve static files (only in production)
+  if (process.env.NODE_ENV === 'production') {
+    app.use(express.static(path.join(process.cwd(), 'public')));
+  }
 
   // ============================================================================
   // PUBLIC ROUTES (no auth required)
@@ -50,7 +50,38 @@ export const createApp = (): Application => {
   // PROTECTED ROUTES (auth required)
   // ============================================================================
   // Apply auth middleware to all /api routes
-  app.use('/api/v1', authMiddleware);
+  // Use mock middleware in test mode, real Supabase auth in production
+  let authMiddlewareToUse = authMiddleware;
+  if (process.env.NODE_ENV === 'test') {
+    // Dynamically import mock middleware for tests
+    // This avoids circular dependency issues
+    const mockAuth = async (req: any, res: any, next: any) => {
+      try {
+        const jwt = await import('jsonwebtoken');
+        const authHeader = req.headers.authorization;
+
+        if (!authHeader?.startsWith('Bearer ')) {
+          res.status(401).json({ error: 'Missing or invalid authorization header' });
+          return;
+        }
+
+        const token = authHeader.slice(7);
+        const TEST_JWT_SECRET = 'test-secret-key-do-not-use-in-production';
+        
+        const decoded = jwt.verify(token, TEST_JWT_SECRET, { algorithms: ['HS256'] }) as any;
+        req.user = {
+          id: decoded.sub,
+          email: `user-${decoded.sub.substring(0, 8)}@test.local`,
+        };
+        next();
+      } catch (err) {
+        res.status(401).json({ error: 'Invalid or expired token' });
+      }
+    };
+    authMiddlewareToUse = mockAuth;
+  }
+
+  app.use('/api/v1', authMiddlewareToUse);
 
   app.use('/api/v1/trades', tradesRouter);
   app.use('/api/v1/accounts', accountsRouter);
@@ -74,7 +105,8 @@ export const createApp = (): Application => {
 // ============================================================================
 // START SERVER (only if running directly, not imported for testing)
 // ============================================================================
-if (import.meta.url === `file://${process.argv[1]}`) {
+// Skip server startup in test environments
+if (process.env.NODE_ENV !== 'test' && !process.argv.includes('--no-server')) {
   const app = createApp();
   const PORT = process.env.PORT || 3001;
 
