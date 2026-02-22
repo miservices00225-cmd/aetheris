@@ -73,3 +73,63 @@ describe('POST /api/v1/brokers/:accountId - Broker Sync', () => {
     expect(response.body.error).toMatch(/Unauthorized|access|permission/i);
   });
 });
+
+/**
+ * Phase 4: Error Cases for Broker Sync
+ * Context7: Test invalid inputs, non-existent accounts, authorization failures
+ */
+describe('POST /api/v1/brokers/:accountId - Error Cases', () => {
+  const app = createApp();
+
+  /**
+   * Test 4.14: Invalid account_id format (malformed UUID)
+   */
+  it('should reject sync with invalid account_id format', async () => {
+    const user = createTestUser();
+    const token = generateTestJWT(user.id);
+
+    const response = await request(app)
+      .post('/api/v1/brokers/not-a-uuid')
+      .set(authHeader(token))
+      .expect('Content-Type', /json/)
+      .expect(422);
+
+    expect(response.body.details).toBeDefined();
+  });
+
+  /**
+   * Test 4.15: Non-existent account (404)
+   */
+  it('should return 404 for non-existent account', async () => {
+    const user = createTestUser();
+    const token = generateTestJWT(user.id);
+    const nonExistentId = '550e8400-e29b-41d4-a716-446655440000';
+
+    const response = await request(app)
+      .post(`/api/v1/brokers/${nonExistentId}`)
+      .set(authHeader(token))
+      .expect('Content-Type', /json/)
+      .expect(404);
+
+    expect(response.body.error).toBeDefined();
+  });
+
+  /**
+   * Test 4.16: No broker connection configured (422)
+   * Context7: Missing prerequisite data (no broker_connections record)
+   */
+  it('should reject sync if no broker connection configured', async () => {
+    const user = createTestUser();
+    const account = createTestAccount(user.id);
+    const token = generateTestJWT(user.id);
+    // Note: account created but no broker_connections record
+
+    const response = await request(app)
+      .post(`/api/v1/brokers/${account.id}`)
+      .set(authHeader(token))
+      .expect('Content-Type', /json/)
+      .expect(422);
+
+    expect(response.body.error).toBeDefined();
+  });
+});

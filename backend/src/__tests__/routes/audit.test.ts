@@ -182,3 +182,106 @@ describe('GET /api/v1/audit/export - Export Audit Trail', () => {
     // In a real scenario, response1 and response2 would have different content
   });
 });
+
+/**
+ * Phase 4: Error Cases for Audit Trail
+ * Context7: Test invalid query parameters, date format errors, authorization failures
+ */
+describe('GET /api/v1/audit/snapshots - Error Cases', () => {
+  const app = createApp();
+
+  /**
+   * Test 4.17: Invalid date format in query parameter
+   */
+  it('should reject snapshots query with invalid start_date format', async () => {
+    const user = createTestUser();
+    const token = generateTestJWT(user.id);
+
+    const response = await request(app)
+      .get('/api/v1/audit/snapshots')
+      .set(authHeader(token))
+      .query({ start_date: 'not-a-date' })
+      .expect('Content-Type', /json/);
+
+    // Either 400 (bad request) or 422 (validation error)
+    expect([400, 422]).toContain(response.status);
+  });
+
+  /**
+   * Test 4.18: Invalid date range (end_date before start_date)
+   */
+  it('should reject snapshots query with invalid date range', async () => {
+    const user = createTestUser();
+    const token = generateTestJWT(user.id);
+
+    const response = await request(app)
+      .get('/api/v1/audit/snapshots')
+      .set(authHeader(token))
+      .query({
+        start_date: '2026-03-01T00:00:00Z',
+        end_date: '2026-01-01T00:00:00Z', // Before start_date
+      })
+      .expect('Content-Type', /json/)
+      .expect(422);
+
+    expect(response.body.error || response.body.details).toBeDefined();
+  });
+
+  /**
+   * Test 4.19: Invalid pagination parameters
+   */
+  it('should reject snapshots with invalid limit parameter', async () => {
+    const user = createTestUser();
+    const token = generateTestJWT(user.id);
+
+    const response = await request(app)
+      .get('/api/v1/audit/snapshots')
+      .set(authHeader(token))
+      .query({ limit: -10 }) // Negative limit
+      .expect('Content-Type', /json/)
+      .expect(422);
+
+    expect(response.body.details).toBeDefined();
+  });
+});
+
+describe('GET /api/v1/audit/export - Export Error Cases', () => {
+  const app = createApp();
+
+  /**
+   * Test 4.20: Invalid date range in export
+   */
+  it('should reject export with invalid date range', async () => {
+    const user = createTestUser();
+    const token = generateTestJWT(user.id);
+
+    const response = await request(app)
+      .get('/api/v1/audit/export')
+      .set(authHeader(token))
+      .query({
+        start_date: '2026-03-01T00:00:00Z',
+        end_date: '2026-01-01T00:00:00Z', // Before start_date
+      })
+      .expect('Content-Type', /json/)
+      .expect(422);
+
+    expect(response.body.error || response.body.details).toBeDefined();
+  });
+
+  /**
+   * Test 4.21: Invalid format parameter (not csv/json/excel)
+   */
+  it('should reject export with unsupported format', async () => {
+    const user = createTestUser();
+    const token = generateTestJWT(user.id);
+
+    const response = await request(app)
+      .get('/api/v1/audit/export')
+      .set(authHeader(token))
+      .query({ format: 'invalid_format' })
+      .expect('Content-Type', /json/)
+      .expect(422);
+
+    expect(response.body.error).toBeDefined();
+  });
+});

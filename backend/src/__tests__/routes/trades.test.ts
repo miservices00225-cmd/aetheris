@@ -169,3 +169,142 @@ describe('GET /api/v1/trades - List Trades', () => {
     expect(Array.isArray(response.body)).toBe(true);
   });
 });
+
+/**
+ * Phase 4: Error Cases for Trades
+ * Context7: Test invalid inputs, constraint violations, authorization failures
+ */
+describe('POST /api/v1/trades - Error Cases', () => {
+  const app = createApp();
+
+  /**
+   * Test 4.1: Invalid trade payload (missing required fields)
+   */
+  it('should reject trade with missing required fields and return 422', async () => {
+    const user = createTestUser();
+    const account = createTestAccount(user.id);
+    const token = generateTestJWT(user.id);
+
+    const response = await request(app)
+      .post('/api/v1/trades')
+      .set(authHeader(token))
+      .send({
+        // Missing entry_price, exit_price, quantity
+        account_id: account.id,
+      })
+      .expect('Content-Type', /json/)
+      .expect(422);
+
+    expect(response.body.details).toBeDefined();
+  });
+
+  /**
+   * Test 4.2: Unauthorized - user cannot create trade for another user's account
+   * Context7: verifyAccountOwnership should reject
+   */
+  it('should reject trade creation for account not owned by user', async () => {
+    const user1 = createTestUser();
+    const user2 = createTestUser();
+    const account = createTestAccount(user2.id); // Account owned by user2
+    const token = generateTestJWT(user1.id); // But user1 is creating
+
+    const response = await request(app)
+      .post('/api/v1/trades')
+      .set(authHeader(token))
+      .send({
+        ...VALID_TRADE_PAYLOAD,
+        account_id: account.id,
+      })
+      .expect('Content-Type', /json/)
+      .expect(403); // Forbidden - not the owner
+
+    expect(response.body.error).toBeDefined();
+  });
+
+  /**
+   * Test 4.3: Invalid account_id format (malformed UUID)
+   */
+  it('should reject trade with invalid account_id format', async () => {
+    const user = createTestUser();
+    const token = generateTestJWT(user.id);
+
+    const response = await request(app)
+      .post('/api/v1/trades')
+      .set(authHeader(token))
+      .send({
+        ...VALID_TRADE_PAYLOAD,
+        account_id: 'not-a-uuid',
+      })
+      .expect('Content-Type', /json/)
+      .expect(422);
+
+    expect(response.body.details).toBeDefined();
+  });
+
+  /**
+   * Test 4.4: Invalid numeric values (negative quantity, prices)
+   */
+  it('should reject trade with negative prices or quantities', async () => {
+    const user = createTestUser();
+    const account = createTestAccount(user.id);
+    const token = generateTestJWT(user.id);
+
+    const response = await request(app)
+      .post('/api/v1/trades')
+      .set(authHeader(token))
+      .send({
+        ...VALID_TRADE_PAYLOAD,
+        account_id: account.id,
+        entry_price: -100.5, // Invalid - negative
+        quantity: -10,        // Invalid - negative
+      })
+      .expect('Content-Type', /json/)
+      .expect(422);
+
+    expect(response.body.details).toBeDefined();
+  });
+});
+
+describe('GET /api/v1/trades - Error Cases', () => {
+  const app = createApp();
+
+  /**
+   * Test 4.5: Invalid date format in query
+   */
+  it('should reject query with invalid date format', async () => {
+    const user = createTestUser();
+    const account = createTestAccount(user.id);
+    const token = generateTestJWT(user.id);
+
+    const response = await request(app)
+      .get('/api/v1/trades')
+      .set(authHeader(token))
+      .query({
+        account_id: account.id,
+        start_date: 'not-a-date',
+      })
+      .expect('Content-Type', /json/);
+
+    // Either 400 (bad request) or 422 (validation error)
+    expect([400, 422]).toContain(response.status);
+  });
+
+  /**
+   * Test 4.6: Cross-account access prevention
+   */
+  it('should not list trades for account not owned by user', async () => {
+    const user1 = createTestUser();
+    const user2 = createTestUser();
+    const account = createTestAccount(user2.id); // Owned by user2
+    const token = generateTestJWT(user1.id); // But user1 requests
+
+    const response = await request(app)
+      .get('/api/v1/trades')
+      .set(authHeader(token))
+      .query({ account_id: account.id })
+      .expect('Content-Type', /json/)
+      .expect(403);
+
+    expect(response.body.error).toBeDefined();
+  });
+});

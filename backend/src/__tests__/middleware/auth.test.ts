@@ -17,6 +17,7 @@ import {
   authHeader,
   AUTH_SCENARIOS,
 } from '../helpers';
+import { createTestUser } from '../fixtures';
 
 describe('Auth Middleware', () => {
   describe('JWT validation', () => {
@@ -64,7 +65,7 @@ describe('Auth Middleware', () => {
 
   describe('Bearer token parsing', () => {
     it('should extract user ID from valid JWT', async () => {
-      const userId = 'test-user-123';
+      const { id: userId } = createTestUser();
       const token = generateTestJWT(userId);
 
       const response = await request(app)
