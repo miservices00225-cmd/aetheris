@@ -2,24 +2,27 @@ import { adminClient } from '../config/supabase.js';
 import { DatabaseError, wrapDatabaseError } from './errors.js';
 
 /**
- * Trade record type from database
+ * Trade record type matching actual Supabase schema
  */
 export interface Trade {
   id: string;
   account_id: string;
   broker_id: string;
   broker_trade_id: string | null;
-  entry_time: string;
+  symbol: string;
+  trade_type: 'buy' | 'sell' | 'long' | 'short' | null;
   entry_price: number;
-  exit_time: string | null;
   exit_price: number | null;
   quantity: number;
+  entry_time: string;
+  exit_time: string | null;
+  commission: number | null;
+  slippage: number | null;
   pnl: number | null;
-  commission: number;
-  slippage: number;
-  instrument: string;
-  direction: 'LONG' | 'SHORT';
-  strategy: string | null;
+  pnl_percent: number | null;
+  mfe: number | null;
+  mae: number | null;
+  duration_seconds: number | null;
   notes: string | null;
   created_at: string;
   updated_at: string;

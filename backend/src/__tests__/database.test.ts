@@ -59,23 +59,18 @@ describe('Database Layer - Sprint 3', () => {
     // Clean up any existing test data
     await cleanupTestData();
 
-    // Create test users
-    const userAData = {
-      id: TEST_USER_A_ID,
-      email: 'user-a@test.local',
-      username: 'user_a',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-    const userBData = {
-      id: TEST_USER_B_ID,
-      email: 'user-b@test.local',
-      username: 'user_b',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
+    // Create test users (only email + id, other fields auto-generated)
+    const { error: userError } = await adminClient
+      .from('users')
+      .insert([
+        { id: TEST_USER_A_ID, email: 'user-a@test.local' },
+        { id: TEST_USER_B_ID, email: 'user-b@test.local' },
+      ]);
 
-    await adminClient.from('users').upsert([userAData, userBData]);
+    if (userError) {
+      console.error('Failed to create test users:', userError);
+      throw userError;
+    }
   });
 
   afterAll(async () => {
@@ -94,28 +89,16 @@ describe('Database Layer - Sprint 3', () => {
     let testTradeId: string;
 
     beforeAll(async () => {
-      // Create test account
-      const account = await adminClient
-        .from('accounts')
-        .insert([
-          {
-            user_id: TEST_USER_A_ID,
-            name: 'Test Account',
-            broker_id: 'mt4',
-            account_number: 'test-001',
-            account_type: 'DEMO',
-            currency: 'USD',
-            initial_balance: 10000,
-            current_balance: 10000,
-            max_drawdown_percent: 20,
-            leverage: 1,
-            status: 'ACTIVE',
-          },
-        ])
-        .select('id')
-        .single();
+      // Create test account using helper
+      const account = await createAccount(TEST_USER_A_ID, {
+        account_name: 'Test Account',
+        account_type: 'personal',
+        broker_type: 'mt4',
+        risk_limit_percent: 2.0,
+        max_drawdown_percent: 20,
+      });
 
-      testAccountId = account.data?.id as string;
+      testAccountId = account.id;
     });
 
     test('2.1-2.2: insertTrade() creates trade with valid data', async () => {
@@ -127,8 +110,8 @@ describe('Database Layer - Sprint 3', () => {
         quantity: 1,
         commission: 10,
         slippage: 0.5,
-        instrument: 'EURUSD',
-        direction: 'LONG',
+        symbol: 'EURUSD',
+        trade_type: 'long',
       });
 
       expect(trade).toBeDefined();
@@ -148,8 +131,8 @@ describe('Database Layer - Sprint 3', () => {
           quantity: 1,
           commission: 10,
           slippage: 0.5,
-          instrument: 'EURUSD',
-          direction: 'LONG',
+          symbol: 'EURUSD',
+          trade_type: 'long',
         })
       ).rejects.toThrow(DatabaseError);
     });
@@ -188,16 +171,11 @@ describe('Database Layer - Sprint 3', () => {
 
     test('3.1-3.2: createAccount() links to user', async () => {
       const account = await createAccount(TEST_USER_A_ID, {
-        name: 'Test Account 2',
-        broker_id: 'mt5',
-        account_number: 'test-002',
-        account_type: 'LIVE',
-        currency: 'EUR',
-        initial_balance: 50000,
-        current_balance: 50000,
+        account_name: 'Test Account 2',
+        account_type: 'personal',
+        broker_type: 'mt5',
+        risk_limit_percent: 2.5,
         max_drawdown_percent: 15,
-        leverage: 10,
-        status: 'ACTIVE',
       });
 
       expect(account).toBeDefined();
@@ -222,7 +200,6 @@ describe('Database Layer - Sprint 3', () => {
     test('3.5: selectByRiskViolation() returns active accounts', async () => {
       const accounts = await selectByRiskViolation();
       expect(accounts.length).toBeGreaterThan(0);
-      expect(accounts.every((a: any) => a.status === 'ACTIVE')).toBe(true);
     });
   });
 
@@ -254,28 +231,16 @@ describe('Database Layer - Sprint 3', () => {
     let snapshotAccountId: string;
 
     beforeAll(async () => {
-      // Create account for snapshot tests
-      const account = await adminClient
-        .from('accounts')
-        .insert([
-          {
-            user_id: TEST_USER_A_ID,
-            name: 'Snapshot Test Account',
-            broker_id: 'mt4',
-            account_number: 'snapshot-001',
-            account_type: 'DEMO',
-            currency: 'USD',
-            initial_balance: 10000,
-            current_balance: 10000,
-            max_drawdown_percent: 20,
-            leverage: 1,
-            status: 'ACTIVE',
-          },
-        ])
-        .select('id')
-        .single();
+      // Create account for snapshot tests using helper
+      const account = await createAccount(TEST_USER_A_ID, {
+        account_name: 'Snapshot Test Account',
+        account_type: 'personal',
+        broker_type: 'mt4',
+        risk_limit_percent: 2.0,
+        max_drawdown_percent: 20,
+      });
 
-      snapshotAccountId = account.data?.id as string;
+      snapshotAccountId = account.id;
 
       // Insert test trade for snapshot
       await adminClient.from('trades').insert([
@@ -291,8 +256,8 @@ describe('Database Layer - Sprint 3', () => {
           pnl: 1000,
           commission: 10,
           slippage: 0.5,
-          instrument: 'EURUSD',
-          direction: 'LONG',
+          symbol: 'EURUSD',
+          trade_type: 'long',
         },
       ]);
     });
@@ -319,28 +284,16 @@ describe('Database Layer - Sprint 3', () => {
     let userBAccountId: string;
 
     beforeAll(async () => {
-      // Create accounts for both users
-      const accountB = await adminClient
-        .from('accounts')
-        .insert([
-          {
-            user_id: TEST_USER_B_ID,
-            name: 'User B Account',
-            broker_id: 'mt4',
-            account_number: 'rls-b-001',
-            account_type: 'DEMO',
-            currency: 'USD',
-            initial_balance: 10000,
-            current_balance: 10000,
-            max_drawdown_percent: 20,
-            leverage: 1,
-            status: 'ACTIVE',
-          },
-        ])
-        .select('id')
-        .single();
+      // Create account for User B using helper
+      const accountB = await createAccount(TEST_USER_B_ID, {
+        account_name: 'User B Account',
+        account_type: 'personal',
+        broker_type: 'mt4',
+        risk_limit_percent: 2.0,
+        max_drawdown_percent: 20,
+      });
 
-      userBAccountId = accountB.data?.id as string;
+      userBAccountId = accountB.id;
     });
 
     test('6.1: User A cannot see User B accounts', async () => {
@@ -364,27 +317,15 @@ describe('Database Layer - Sprint 3', () => {
     let dedupAccountId: string;
 
     beforeAll(async () => {
-      const account = await adminClient
-        .from('accounts')
-        .insert([
-          {
-            user_id: TEST_USER_A_ID,
-            name: 'Dedup Test Account',
-            broker_id: 'mt4',
-            account_number: 'dedup-001',
-            account_type: 'DEMO',
-            currency: 'USD',
-            initial_balance: 10000,
-            current_balance: 10000,
-            max_drawdown_percent: 20,
-            leverage: 1,
-            status: 'ACTIVE',
-          },
-        ])
-        .select('id')
-        .single();
+      const account = await createAccount(TEST_USER_A_ID, {
+        account_name: 'Dedup Test Account',
+        account_type: 'personal',
+        broker_type: 'mt4',
+        risk_limit_percent: 2.0,
+        max_drawdown_percent: 20,
+      });
 
-      dedupAccountId = account.data?.id as string;
+      dedupAccountId = account.id;
     });
 
     test('7.1: IGNORE strategy - duplicate discarded', async () => {
@@ -396,8 +337,8 @@ describe('Database Layer - Sprint 3', () => {
         quantity: 1,
         commission: 10,
         slippage: 0.5,
-        instrument: 'EURUSD',
-        direction: 'LONG',
+        symbol: 'EURUSD',
+        trade_type: 'long',
       });
 
       const trades = await selectTrades(dedupAccountId);
@@ -416,8 +357,8 @@ describe('Database Layer - Sprint 3', () => {
           quantity: 1,
           commission: 10,
           slippage: 0.5,
-          instrument: 'EURUSD',
-          direction: 'LONG',
+          symbol: 'EURUSD',
+          trade_type: 'long',
         })
       ).rejects.toThrow();
     });
@@ -436,8 +377,8 @@ describe('Database Layer - Sprint 3', () => {
           quantity: 1,
           commission: 10,
           slippage: 0.5,
-          instrument: 'EURUSD',
-          direction: 'LONG',
+          symbol: 'EURUSD',
+          trade_type: 'long',
         })
       ).rejects.toThrow();
 
@@ -450,27 +391,14 @@ describe('Database Layer - Sprint 3', () => {
     let errorTestAccountId: string;
 
     beforeAll(async () => {
-      const account = await adminClient
-        .from('accounts')
-        .insert([
-          {
-            user_id: TEST_USER_A_ID,
-            name: 'Error Test Account',
-            broker_id: 'mt4',
-            account_number: 'error-001',
-            account_type: 'DEMO',
-            currency: 'USD',
-            initial_balance: 10000,
-            current_balance: 10000,
-            max_drawdown_percent: 20,
-            leverage: 1,
-            status: 'ACTIVE',
-          },
-        ])
-        .select('id')
-        .single();
+      const account = await createAccount(TEST_USER_A_ID, {
+        account_name: 'Error Test Account',
+        account_type: 'personal',
+        broker_type: 'mt4',
+        max_drawdown_percent: 20,
+      });
 
-      errorTestAccountId = account.data?.id as string;
+      errorTestAccountId = account.id;
     });
 
     test('8.1: FK constraint error on invalid account_id', async () => {
@@ -483,31 +411,26 @@ describe('Database Layer - Sprint 3', () => {
           quantity: 1,
           commission: 10,
           slippage: 0.5,
-          instrument: 'EURUSD',
-          direction: 'LONG',
+          symbol: 'EURUSD',
+          trade_type: 'long',
         })
       ).rejects.toThrow(DatabaseError);
     });
 
     test('8.2: NOT NULL error on missing entry_price', async () => {
       await expect(
-        adminClient
-          .from('trades')
-          .insert([
-            {
-              account_id: errorTestAccountId,
-              broker_id: 'mt4',
-              entry_time: new Date().toISOString(),
-              entry_price: null, // Missing required field
-              quantity: 1,
-              commission: 10,
-              slippage: 0.5,
-              instrument: 'EURUSD',
-              direction: 'LONG',
-            },
-          ])
-          .select('*')
-      ).rejects.toThrow();
+        insertTrade(errorTestAccountId, {
+          broker_id: 'mt4',
+          broker_trade_id: 'null-error-test',
+          entry_time: new Date().toISOString(),
+          entry_price: null as any, // Missing required field
+          quantity: 1,
+          commission: 10,
+          slippage: 0.5,
+          symbol: 'EURUSD',
+          trade_type: 'long',
+        })
+      ).rejects.toThrow(DatabaseError);
     });
 
     test('8.3: Error messages are clear', async () => {
@@ -520,14 +443,18 @@ describe('Database Layer - Sprint 3', () => {
           quantity: 1,
           commission: 10,
           slippage: 0.5,
-          instrument: 'EURUSD',
-          direction: 'LONG',
+          symbol: 'EURUSD',
+          trade_type: 'long',
         });
+        fail('Expected insertTrade to throw');
       } catch (error: unknown) {
         if (error instanceof DatabaseError) {
           const msg = error.getDetailedMessage();
           expect(msg).toContain('DatabaseError');
-          expect(msg).toContain('INSERT');
+          expect(msg).toContain('[table:'); // Has table info
+          expect(msg).toContain('[code:'); // Has error code
+        } else {
+          fail(`Expected DatabaseError, got ${error}`);
         }
       }
     });
@@ -537,27 +464,15 @@ describe('Database Layer - Sprint 3', () => {
     test('9.1: All functions have explicit return types', async () => {
       // This is verified at compile time via TypeScript strict mode
       // Manual check: verify trade functions return Trade/Trade[]
-      const account = await adminClient
-        .from('accounts')
-        .insert([
-          {
-            user_id: TEST_USER_A_ID,
-            name: 'Type Check Account',
-            broker_id: 'mt4',
-            account_number: 'type-001',
-            account_type: 'DEMO',
-            currency: 'USD',
-            initial_balance: 10000,
-            current_balance: 10000,
-            max_drawdown_percent: 20,
-            leverage: 1,
-            status: 'ACTIVE',
-          },
-        ])
-        .select('id')
-        .single();
+      const account = await createAccount(TEST_USER_A_ID, {
+        account_name: 'Type Check Account',
+        account_type: 'personal',
+        broker_type: 'mt4',
+        risk_limit_percent: 2.0,
+        max_drawdown_percent: 20,
+      });
 
-      const accountId = account.data?.id as string;
+      const accountId = account.id;
       const trade = await insertTrade(accountId, {
         broker_id: 'mt4',
         broker_trade_id: 'type-test-001',
@@ -566,8 +481,8 @@ describe('Database Layer - Sprint 3', () => {
         quantity: 1,
         commission: 10,
         slippage: 0.5,
-        instrument: 'EURUSD',
-        direction: 'LONG',
+        symbol: 'EURUSD',
+        trade_type: 'long',
       });
 
       expect(trade.id).toBeTruthy();

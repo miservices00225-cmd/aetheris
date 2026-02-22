@@ -1,13 +1,14 @@
+-- ============================================================================
+-- TEST 1: RLS ISOLATION (2 Users, 2 Accounts, 2 Trades)
+-- ============================================================================
+Error: Failed to run sql query: ERROR: 42P01: relation "audit_trail" does not exist QUERY: INSERT INTO audit_trail (table_name, record_id, operation, new_values, changed_by, audit_timestamp) VALUES (TG_TABLE_NAME, NEW.id, TG_OP, row_to_json(NEW), auth.uid(), NOW()) CONTEXT: PL/pgSQL function public.log_audit_trail() line 4 at SQL statement 
 
+-- ============================================================================
+-- TEST 2: AUDIT TRIGGERS
+-- ============================================================================
+Error: Failed to run sql query: ERROR: 42703: column "recorded_at" does not exist LINE 7: SELECT id, table_name, operation, changed_by, recorded_at ^ 
 
-PS C:\Users\ONPHA-CI\Desktop\PROJETS\Journal_de_Trading\backend> npm run dev
-
-> aetheris-backend@0.1.0 dev
-> tsx watch src/server.ts
-
-✅ AETHERIS Backend listening on http://localhost:3001
-   Supabase connected: https://fqkvljxdfjwcbxflilhy.supabase.co
-::ffff:127.0.0.1 - - [22/Feb/2026:02:04:07 +0000] "GET / HTTP/1.1" 404 139 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:147.0) Gecko/20100101 Firefox/147.0"
-::ffff:127.0.0.1 - - [22/Feb/2026:02:04:18 +0000] "GET / HTTP/1.1" 404 139 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:147.0) Gecko/20100101 Firefox/147.0
-
-Content-Security-Policy : Les paramètres de la page ont empêché le chargement d’une ressource (img-src) à l’adresse http://localhost:3001/favicon.ico car elle enfreint la directive suivante : « default-src 'none' » FaviconLoader.sys.mjs:224:20
+-- ============================================================================
+-- TEST 3: DEDUPLICATION (UNIQUE Constraint)
+-- ============================================================================
+Error: Failed to run sql query: ERROR: 23503: insert or update on table "trades" violates foreign key constraint "trades_account_id_fkey" DETAIL: Key (account_id)=(aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa) is not present in table "accounts".

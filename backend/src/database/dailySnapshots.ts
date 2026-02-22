@@ -3,21 +3,20 @@ import { DatabaseError, wrapDatabaseError } from './errors.js';
 import { selectTrades } from './trades.js';
 
 /**
- * Daily snapshot record type
+ * Daily snapshot record type - matches actual Supabase schema
  */
 export interface DailySnapshot {
   id: string;
   account_id: string;
   snapshot_date: string; // UTC date
-  net_pnl: number;
-  gross_profit: number;
-  gross_loss: number;
+  net_pnl: number | null;
+  gross_profit: number | null;
+  gross_loss: number | null;
   trade_count: number;
   win_count: number;
   loss_count: number;
-  expectancy: number;
-  profit_factor: number;
-  max_drawdown_intraday: number;
+  largest_win: number | null;
+  largest_loss: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -59,16 +58,15 @@ export async function createDailySnapshot(
     });
 
     // Calculate derived metrics
-    const profitFactor = grossLoss > 0 ? grossProfit / grossLoss : 0;
-    let expectancy = 0;
+    let largestWin = 0;
+    let largestLoss = 0;
+    
     if (trades.length > 0) {
-      const winRate = winCount / trades.length;
-      const avgWin = winCount > 0 ? grossProfit / winCount : 0;
-      const avgLoss = lossCount > 0 ? grossLoss / lossCount : 0;
-      expectancy = winRate * avgWin - (1 - winRate) * avgLoss;
+      largestWin = Math.max(0, ...trades.map(t => t.pnl || 0).filter(p => p > 0));
+      largestLoss = Math.max(0, ...trades.map(t => Math.abs(t.pnl || 0)).filter(p => p > 0 && (trades.find(tr => tr.pnl === -p * (p > 0 ? 1 : -1))?.pnl || 0) < 0));
     }
 
-    // Insert snapshot
+    // Insert snapshot with only actual table columns
     const { data, error } = await adminClient
       .from('daily_snapshots')
       .insert([
@@ -81,9 +79,8 @@ export async function createDailySnapshot(
           trade_count: trades.length,
           win_count: winCount,
           loss_count: lossCount,
-          expectancy,
-          profit_factor: profitFactor,
-          max_drawdown_intraday: 0, // TODO: Calculate from intraday equity curve
+          largest_win: largestWin || null,
+          largest_loss: largestLoss || null,
         },
       ])
       .select('*')

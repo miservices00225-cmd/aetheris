@@ -2,25 +2,19 @@ import { adminClient } from '../config/supabase.js';
 import { DatabaseError, wrapDatabaseError } from './errors.js';
 
 /**
- * Account record type from database
+ * Account record type matching actual Supabase schema
  */
 export interface Account {
   id: string;
   user_id: string;
-  name: string;
-  broker_id: string;
-  account_number: string;
-  account_type: 'LIVE' | 'DEMO' | 'PAPER' | 'PROP_FIRM';
-  currency: string;
-  initial_balance: number;
-  current_balance: number;
-  max_drawdown_percent: number;
-  leverage: number;
-  trailing_drawdown_percent: number | null;
-  status: 'ACTIVE' | 'ARCHIVED' | 'CLOSED';
-  api_key: string | null;
-  api_secret: string | null;
-  connected_at: string | null;
+  account_name: string;
+  account_type: 'personal' | 'prop_firm' | 'crypto';
+  broker_type: string | null;
+  prop_firm_template_id: string | null;
+  prop_firm_rules: Record<string, any> | null;
+  risk_limit_percent: number | null;
+  daily_loss_limit: number | null;
+  max_drawdown_percent: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -115,7 +109,6 @@ export async function selectByRiskViolation(): Promise<Account[]> {
     const { data, error } = await adminClient
       .from('accounts')
       .select('*')
-      .eq('status', 'ACTIVE')
       .order('updated_at', { ascending: true });
 
     if (error) {
