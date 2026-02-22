@@ -25,6 +25,25 @@ ALTER TABLE sessions ENABLE ROW LEVEL SECURITY;
 -- Public tables (no RLS): prop_firm_templates, whale_events, oracle_scores, audit_trail
 
 -- ============================================================================
+-- FORCE ROW LEVEL SECURITY - Prevent Owner Bypass
+-- Ensures service_role cannot bypass RLS even as table owner
+-- ============================================================================
+
+ALTER TABLE accounts FORCE ROW LEVEL SECURITY;
+ALTER TABLE broker_connections FORCE ROW LEVEL SECURITY;
+ALTER TABLE trades FORCE ROW LEVEL SECURITY;
+ALTER TABLE sync_logs FORCE ROW LEVEL SECURITY;
+ALTER TABLE daily_snapshots FORCE ROW LEVEL SECURITY;
+ALTER TABLE kpi_snapshots FORCE ROW LEVEL SECURITY;
+ALTER TABLE emotion_logs FORCE ROW LEVEL SECURITY;
+ALTER TABLE vocal_notes FORCE ROW LEVEL SECURITY;
+ALTER TABLE armor_breaches FORCE ROW LEVEL SECURITY;
+ALTER TABLE webhook_events FORCE ROW LEVEL SECURITY;
+ALTER TABLE sessions FORCE ROW LEVEL SECURITY;
+
+-- Note: users table is not FORCE RLS since auth system needs table owner access for jwt claims
+
+-- ============================================================================
 -- 1. USERS TABLE
 -- ============================================================================
 
