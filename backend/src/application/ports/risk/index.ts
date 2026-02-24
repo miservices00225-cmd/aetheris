@@ -1,0 +1,1 @@
+export { IRiskRepository } from './IRiskRepository';

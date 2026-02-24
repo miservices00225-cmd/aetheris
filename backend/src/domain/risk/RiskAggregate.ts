@@ -84,6 +84,13 @@ export class RiskAggregate {
   }
 
   /**
+   * Get current balance.
+   */
+  getBalanceCurrent(): number {
+    return this.balance_current;
+  }
+
+  /**
    * Calculate daily loss as percentage of start-of-day balance.
    * (balance_start - balance_current) / balance_start * 100
    */
