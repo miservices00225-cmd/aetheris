@@ -1,5 +1,5 @@
 // Domain layer — risk module
-export { RiskAggregate, type RiskAggregateProps } from './RiskAggregate';
+export { RiskAggregate, type RiskAggregateProps, type RiskAggregatePersistence } from './RiskAggregate';
 export {
   DrawdownPercentage,
   PropFirmThreshold,

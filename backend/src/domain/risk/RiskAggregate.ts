@@ -20,6 +20,15 @@ export interface RiskAggregateProps {
   balance_current: number;
 }
 
+export interface RiskAggregatePersistence {
+  account_id: string;
+  current_drawdown: number;
+  max_drawdown: number;
+  prop_firm_threshold: { firm_name: string; max_daily_loss_percent: number; max_trailing_drawdown_percent: number } | null;
+  balance_start_of_day: number;
+  balance_current: number;
+}
+
 export class RiskAggregate {
   private account_id: string;
   private current_drawdown: DrawdownPercentage;
@@ -300,7 +309,7 @@ export class RiskAggregate {
   /**
    * Serialize to JSON for persistence.
    */
-  toJSON(): RiskAggregateProps {
+  toJSON(): RiskAggregatePersistence {
     return {
       account_id: this.account_id,
       current_drawdown: this.current_drawdown.value,

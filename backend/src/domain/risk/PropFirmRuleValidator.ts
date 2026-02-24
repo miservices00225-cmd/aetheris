@@ -3,7 +3,7 @@
  * Validates RiskAggregate against prop firm rules and produces actionable warnings/violations.
  */
 
-import { DrawdownPercentage, PropFirmThreshold } from './value-objects';
+import { DrawdownPercentage } from './value-objects';
 import { RiskAggregate } from './RiskAggregate';
 
 export type RuleType = 'MDL' | 'TRAILING_DD';
@@ -51,7 +51,6 @@ export class PropFirmRuleValidator {
 
     // Validate MDL (Daily Loss)
     this.validateRule(
-      threshold,
       currentDrawdown,
       'MDL',
       threshold.max_daily_loss_percent,
@@ -61,7 +60,6 @@ export class PropFirmRuleValidator {
 
     // Validate Trailing DD
     this.validateRule(
-      threshold,
       maxDrawdown,
       'TRAILING_DD',
       threshold.max_trailing_drawdown_percent,
@@ -80,7 +78,6 @@ export class PropFirmRuleValidator {
    * Validate a single rule (MDL or Trailing DD).
    */
   private validateRule(
-    threshold: PropFirmThreshold,
     current: DrawdownPercentage,
     ruleType: RuleType,
     thresholdValue: DrawdownPercentage,
