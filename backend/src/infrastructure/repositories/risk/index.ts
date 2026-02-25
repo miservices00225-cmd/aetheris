@@ -1,0 +1,1 @@
+export { RiskRepositoryAdapter } from './RiskRepositoryAdapter';
